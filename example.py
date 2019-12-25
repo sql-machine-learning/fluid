@@ -13,5 +13,4 @@ def echo_hello_world(hello, world="El mundo"):
     fluid.step(image="ubuntu", cmd=["echo"], args=[world])
 
 
-if __name__ == "__main__":
-    echo_hello_world("Aloha")
+echo_hello_world("Aloha")
