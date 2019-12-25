@@ -12,7 +12,7 @@ def task(func):
     '''Return a Task'''
     return obj(
         kind="Task",
-        name=func.__name__,
+        name=k8s.safe_name(func.__name__),
         spec={
             "inputs": {
                 "params": task_params(inspect.getfullargspec(func))
@@ -25,10 +25,10 @@ def task_run(func, args):
     '''Return a TaskRun'''
     return obj(
         kind="TaskRun",
-        name=func.__name__ + "-run",
+        name=k8s.safe_name(func.__name__ + "-run"),
         spec={
             "taskRef": {
-                "name": func.__name__
+                "name": k8s.safe_name(func.__name__)
             },
             "inputs": {
                 "params": task_run_params(inspect.getfullargspec(func), args)
