@@ -100,7 +100,7 @@ Then, direct your Web browser to localhost:9097.  You will be able to check all 
 ![](tekton-dashboard.png)
 # Fluid: A Tutorial
 
-This tutorial shows you how to write a Fluid progrma, convert it into a Tekton workflow, and run it on a Kubernetes cluster on your computer.
+This tutorial shows you how to write a Fluid program, convert it into a Tekton workflow, and run it on a Kubernetes cluster on your computer.
 
 ## Setup Minikube and Tekton
 

@@ -2,7 +2,7 @@
 
 fluid is a transpiler that converts a Python program into a YAML file representing a workflow that can be executed by Tekton Pipeline.
 
-fluid accepts a subset of Python syntax, namely, function definitions and function invocations.  A comprehensive understandign of fluid is an Python compiler that outputs Kubernetes-native programs.
+fluid accepts a subset of Python syntax, namely, function definitions and function invocations.  A comprehensive understanding of fluid is an Python compiler that outputs Kubernetes-native programs.
 
 ## Kubernetes Resource
 
@@ -52,7 +52,7 @@ def echo_hello_word():
 
 We want to define the function `fluid.step`, which writes the above YAML file to standard output.
 
-A Task could also include inputs, like parameters of a function, and outputs, like return values of a funciton.  We will go over them later.
+A Task could also include inputs, like parameters of a function, and outputs, like return values of a function.  We will go over them later.
 
 ### TaskRun 
 
@@ -82,7 +82,7 @@ A TaskRun could provide inputs to a Task.  We will cover this later.
 
 ### PipeLineResource
 
-A Tekton PipelineResource object is like a global variable of struct type.  In [Tekton tutorila](https://github.com/tektoncd/pipeline/blob/master/docs/tutorial.md#task-inputs-and-outputs), the following example shows a variable of struct `git`, which has two fields: `revision` and `url`.
+A Tekton PipelineResource object is like a global variable of struct type.  In [Tekton tutorial](https://github.com/tektoncd/pipeline/blob/master/docs/tutorial.md#task-inputs-and-outputs), the following example shows a variable of struct `git`, which has two fields: `revision` and `url`.
 
 ```yaml
 apiVersion: tekton.dev/v1alpha1
