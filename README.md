@@ -12,6 +12,8 @@ When you run a Fluid program, which is indeed a Python program, it prints the YA
 
 Here is an example Fluid program.
 
+<table><tr><td>
+
 ```python
 import fluid
 
@@ -25,4 +27,49 @@ if __name__ == "__main__":
     echo_hello_world("Aloha")
 ```
 
+</td><td>
 
+```yaml
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: echo-hello-world
+spec:
+  inputs:
+    params:
+    - description: ''
+      name: hello
+      type: string
+    - default: El mundo
+      description: ''
+      name: world
+      type: string
+  steps:
+  - args:
+    - $(inputs.params.hello)
+    command:
+    - echo
+    image: ubuntu
+    name: example-py-12
+  - args:
+    - $(inputs.params.world)
+    command:
+    - echo
+    image: ubuntu
+    name: example-py-13
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: echo-hello-world-run
+spec:
+  inputs:
+    params:
+    - name: hello
+      value: Aloha
+  taskRef:
+    name: echo_hello_world
+```
+
+</tr></td></table>
