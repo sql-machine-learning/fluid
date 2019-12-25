@@ -1,16 +1,8 @@
 # Fluid
 
-Fluid is a Python package allowing users to write [Tekton Pipeline](https://github.com/tektoncd/pipeline) workflows in Python other than YAML.
+Fluid is a Python package allowing users to write [Tekton](https://github.com/tektoncd/pipeline) workflows in Python other than YAML.
 
-You can consider Fluid a programming langauge with a small subset of Python syntax.
-
-- Only function definitions and function invocations.
-- Only positional arguments, but no keyword (named) arguments.
-- Functions have no return values. (Tekton doesn't support Task output parameters.)
-
-When you run a Fluid program, which is indeed a Python program, it prints the YAML to standard output.  You can then to submit the YAML to Tekton.
-
-Here is an example Fluid program.
+Here is an example.  To the left is a Python program defining a Task and related TaskRun.  To the right is the equivalent YAML file.
 
 <table><tr><td valign=top>
 
@@ -71,3 +63,13 @@ spec:
 ```
 
 </tr></td></table>
+
+## Fluid as a Langauge
+
+You can consider Fluid a programming langauge with a small subset of Python syntax.
+
+- Only function definitions and function invocations.
+- Only positional arguments, but no keyword (named) arguments.
+- Functions have no return values. (Tekton doesn't support Task output parameters.)
+
+When you run a Fluid program, which is indeed a Python program, it prints the YAML file, which, you can then to submit the YAML to Tekton.
