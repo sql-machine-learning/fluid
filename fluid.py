@@ -1,77 +1,27 @@
 #!/usr/bin/env python
-import yaml
-import re
 import inspect
 import sys
 
+import yaml
 
-def tekton_obj(kind, name, spec):
-    '''Returns a dict of Tekton object'''
-    return {
-        "apiVersion": "tekton.dev/v1alpha1",
-        "kind": kind,
-        "metadata": {
-            "name": k8s_name(name),
-        },
-        "spec": spec
-    }
-
-
-def k8s_name(name):
-    '''Replace "_", ".", "\", "/" in name by "-"'''
-    _sub = re.sub(r"_|\.|\\|/", "-", name)
-    return _sub.strip("-")
+import tekton
+import k8s
 
 
 def dump_yaml(content):
+    '''Pretty print a Python dictionary as a YAML'''
     print("---")
     yaml.dump(content, sys.stdout)
 
 
 def task(func):
     '''Dump func as Task and returns a function to print TaskRun'''
-    dump_yaml(
-        tekton_obj(
-            kind="Task",
-            name=func.__name__,
-            spec={
-                "inputs": {
-                    "params": task_params(inspect.getfullargspec(func))
-                }
-            }))
+    dump_yaml(tekton.task(func))
 
     def print_taskrun(*args, **kwargs):
-        dump_yaml(
-            tekton_obj(
-                kind="TaskRun",
-                name=func.__name__ + "-run",
-                spec={
-                    "taskRef": {
-                        "name": func.__name__
-                    },
-                    "inputs": {
-                        "params": len(args) + len(kwargs)  # Complete this.
-                    }
-                }))
+        dump_yaml(tekton.task_run(func, args, kwargs))
+
     return print_taskrun
-
-
-def task_params(argspec):
-    '''Return a list of parameters'''
-    _ps = []
-    for arg in argspec.args:
-        _ps.append(task_param(arg))
-    return _ps
-
-
-def task_param(argspec_arg):
-    '''Return a Tekton parameter.'''
-    return {
-        "name": argspec_arg,
-        "type": "string",       # Need to derive type.
-        "description": "",  # Need to derive description.
-        "default": "",  # Need to derive default value.
-    }
 
 
 STEPS = []  # For holding steps of a Task.
@@ -86,15 +36,11 @@ def step(image, cmd, args):
         caller_of_step = inspect.stack()[2]
         filename = caller_of_step[1]
         lineno = caller_of_step[2]
-        return k8s_name(f"{filename}-{lineno}")
+        return k8s.safe_name(f"{filename}-{lineno}")
 
     global STEPS
-    STEPS.append({
-        "name": step_name(),
-        "image": image,
-        "command": cmd,
-        "args": args
-    })
+    STEPS.append(
+        tekton.step(step_name(), image, cmd, args))
 
 
 @task
