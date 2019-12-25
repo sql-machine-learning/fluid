@@ -12,7 +12,7 @@ When you run a Fluid program, which is indeed a Python program, it prints the YA
 
 Here is an example Fluid program.
 
-<table><tr><td>
+<table><tr><td valign=top>
 
 ```python
 import fluid
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     echo_hello_world("Aloha")
 ```
 
-</td><td>
+</td><td valign=top>
 
 ```yaml
 ---
