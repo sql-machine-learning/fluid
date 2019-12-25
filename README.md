@@ -19,7 +19,6 @@ import fluid
 
 @fluid.task
 def echo_hello_world(hello, world="El mundo"):
-    '''Defines an example Tekton Task'''
     fluid.step(image="ubuntu", cmd=["echo"], args=[hello])
     fluid.step(image="ubuntu", cmd=["echo"], args=[world])
 
