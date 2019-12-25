@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+'''This module defines Kubernetes related utilities.'''
+
 import re
 
 

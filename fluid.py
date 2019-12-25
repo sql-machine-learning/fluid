@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+'''This module defines Fluid primitives for users to write Fluid
+program.
+
+'''
+
 import inspect
 import sys
 
@@ -17,8 +23,8 @@ def task(func):
     '''Dump func as Task and returns a function to print TaskRun'''
     dump_yaml(tekton.task(func))
 
-    def print_taskrun(*args, **kwargs):
-        dump_yaml(tekton.task_run(func, args, kwargs))
+    def print_taskrun(*args):
+        dump_yaml(tekton.task_run(func, args))
 
     return print_taskrun
 
