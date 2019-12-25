@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # -*- coding: utf-8 -*-
 '''This module demonstrates how to write a Fluid program.
 
