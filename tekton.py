@@ -1,8 +1,15 @@
+# -*- coding: utf-8 -*-
+'''This module tekton defines Python functions, each returns a Python
+dictionary that represents a Tekton Resource.
+
+'''
+
 import inspect
 import k8s
 
 
 def task(func):
+    '''Return a Task'''
     return obj(
         kind="Task",
         name=func.__name__,
@@ -13,7 +20,8 @@ def task(func):
         })
 
 
-def task_run(func, *args, **kwargs):
+def task_run(func, args):
+    '''Return a TaskRun'''
     return obj(
         kind="TaskRun",
         name=func.__name__ + "-run",
@@ -22,13 +30,13 @@ def task_run(func, *args, **kwargs):
                 "name": func.__name__
             },
             "inputs": {
-                "params": len(args) + len(kwargs)  # Complete this.
+                "params": task_run_params(inspect.getfullargspec(func), args)
             }
         })
 
 
 def obj(kind, name, spec):
-    '''Returns a dict of Tekton object'''
+    '''Return a dict of Tekton object'''
     return {
         "apiVersion": "tekton.dev/v1alpha1",
         "kind": kind,
@@ -40,24 +48,47 @@ def obj(kind, name, spec):
 
 
 def task_params(argspec):
-    '''Return a list of parameters'''
+    '''Return a list of parameters for Task inputs'''
     _ps = []
-    for arg in argspec.args:
-        _ps.append(task_param(arg))
+    # NOTE: #(defaults)<=#(args).
+    delta = len(argspec.args) - len(argspec.defaults)
+    for i, arg in enumerate(argspec.args):
+        _ps.append(task_param(
+            arg,
+            None if i < delta else argspec.defaults[i-delta]))
     return _ps
 
 
-def task_param(argspec_arg):
-    '''Return a Tekton parameter.'''
+def task_param(arg_name, default_value):
+    '''Return a param for Task inputs.'''
+    _r = {
+        "name": arg_name,
+        "type": "string",   # NOTE: Python doesn't have type.
+        "description": "",  # NOTE: Python cannot specify description.
+    }
+    if default_value is not None:
+        _r["default"] = default_value
+    return _r
+
+
+def task_run_params(argspec, args):
+    '''Return a list of parameters as TaskRun inputs'''
+    _ps = []
+    for i, arg in enumerate(args):
+        _ps.append(task_run_param(argspec.args[i], arg))
+    return _ps
+
+
+def task_run_param(arg_name, arg_value):
+    '''Return a param for TaskRun inputs.'''
     return {
-        "name": argspec_arg,
-        "type": "string",       # Need to derive type.
-        "description": "",  # Need to derive description.
-        "default": "",  # Need to derive default value.
+        "name": arg_name,
+        "value": arg_value
     }
 
 
 def step(name, image, cmd, args):
+    '''Return a step'''
     return {
         "name": name,
         "image": image,
