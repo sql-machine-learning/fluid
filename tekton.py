@@ -16,7 +16,8 @@ def task(func):
         spec={
             "inputs": {
                 "params": task_params(inspect.getfullargspec(func))
-            }
+            },
+            "steps": task_steps(func)
         })
 
 
@@ -87,11 +88,28 @@ def task_run_param(arg_name, arg_value):
     }
 
 
-def step(name, image, cmd, args):
-    '''Return a step'''
-    return {
+STEPS = []  # For holding steps of a Task.
+
+
+def task_steps(func):
+    '''Call func with fake parameters to trace STEPS'''
+    argspec = inspect.getfullargspec(func)
+    fake_args = []
+    for arg in argspec.args:
+        fake_args.append(f"$(inputs.params.{arg})")
+
+    global STEPS
+    STEPS = []
+    func(*fake_args)
+    return STEPS
+
+
+def add_step(name, image, cmd, args):
+    '''Append a step definition to STEPS'''
+    global STEPS
+    STEPS.append({
         "name": name,
         "image": image,
         "command": cmd,
         "args": args
-    }
+    })
