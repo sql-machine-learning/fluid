@@ -21,26 +21,76 @@ def dump_yaml(content):
 
 def task(func):
     '''Dump func as Task and returns a function to print TaskRun'''
+    _resources_before_params(func)
     dump_yaml(tekton.task(func))
 
     def print_taskrun(*args):
         dump_yaml(tekton.task_run(func, args))
-
     return print_taskrun
 
 
-def step(image, cmd, args):
+def _resources_before_params(func):
+    '''Check annotated params (resources) are all before non-annoted params'''
+    seen_param = False
+    argspec = inspect.getfullargspec(func)
+    for i, arg in enumerate(argspec.args):
+        anno = argspec.annotations.get('arg')
+        if anno is None:
+            seen_param = True
+        else:
+            _resource_has_no_default(i, arg, anno, argspec)
+            if seen_param:
+                raise f"{arg} is annotated and is after a non-annotated param"
+
+
+def _resource_has_no_default(i, arg, anno, argspec):
+    '''Raise an error message is annotation and default both exist'''
+    num_args = 0 if argspec.args is None else len(argspec.args)
+    num_defaults = 0 if argspec.defaults is None else len(argspec.defaults)
+    has_default = i >= num_args - num_defaults
+    if anno is not None and has_default:
+        raise f"{arg} cannot be a resource and has default"
+
+
+def _loc(frame):
+    '''Return the location of a Python function invocation'''
+    # See https://stackoverflow.com/a/6628348/724872.
+    caller_of_step = inspect.stack()[frame]
+    filename = caller_of_step[1]
+    lineno = caller_of_step[2]
+    return k8s.safe_name(f"{filename}-{lineno}")
+
+
+def step(image, cmd, args, env=None):
     '''Define a step'''
+    # frame 0 - _loc()
+    # frame 1 - fluid.step()
+    # frame 2 - caller_of_step
+    name = _loc(2)
+    tekton.add_step(name, image, cmd, args, env)
 
-    def step_name():
-        '''step_name is only supposed to be called by step'''
-        # See https://stackoverflow.com/a/6628348/724872.
-        # frame 0 - step_name()
-        # frame 1 - add_step()
-        # frame 2 - fluid.step()
-        caller_of_step = inspect.stack()[2]
-        filename = caller_of_step[1]
-        lineno = caller_of_step[2]
-        return k8s.safe_name(f"{filename}-{lineno}")
 
-    tekton.add_step(step_name(), image, cmd, args)
+def git_resource(url, revision):
+    '''Define a Git repo resource'''
+    # frame 0 - _loc()
+    # frame 1 - fluid.git()
+    # frame 2 - caller of git
+    name = _loc(2)
+    dump_yaml(tekton.git_resource(name, url, revision))
+    return {
+        "name": name,
+        "kind": "resource",
+        "type": "git"}
+
+
+def image_resource(url):
+    '''Define a Docker image resource'''
+    # frame 0 - _loc()
+    # frame 1 - fluid.image()
+    # frame 2 - caler of image
+    name = _loc(2)
+    dump_yaml(tekton.image_resource(name, url))
+    return {
+        "name": name,
+        "kind": "resource",
+        "type": "image"}
