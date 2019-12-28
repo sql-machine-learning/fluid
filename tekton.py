@@ -132,20 +132,20 @@ def task_run_param(arg_name, arg_value):
 class FakeGitResource:
     '''Used in dry-run a Task  function, which might call res_param.revision'''
 
-    def __init__(self, arg):
-        self.url = f"$(inputs.params.{k8s.safe_name(arg)}.url)"
-        self.revision = f"$(inputs.params.{k8s.safe_name(arg)}.revision)"
+    def __init__(self, io, arg):
+        self.url = f"$({io}.resources.{k8s.safe_name(arg)}.url)"
+        self.revision = f"$({io}.resources.{k8s.safe_name(arg)}.revision)"
 
 
 class FakeImageResource:
     '''Used in dry-run a Task  function, which might call res_param.url'''
 
-    def __init__(self, arg):
-        self.url = f"$(inputs.params.{k8s.safe_name(arg)}.url)"
+    def __init__(self, io, arg):
+        self.url = f"$({io}.resources.{k8s.safe_name(arg)}.url)"
 
 
-def _fake_resource(typ, arg):
-    return FakeGitResource(arg) if typ == "git" else FakeImageResource(arg)
+def _fake_resource(io, typ, arg):
+    return FakeGitResource(io, arg) if typ == "git" else FakeImageResource(io, arg)
 
 
 STEPS = []  # For holding steps of a Task.
