@@ -6,6 +6,7 @@ program.
 
 import inspect
 import sys
+import re
 
 import yaml
 
@@ -29,18 +30,23 @@ def task(func):
     return print_taskrun
 
 
+class FluidSyntaxError(Exception):
+    '''FluidSyntaxError records syntax errors'''
+
+
 def _resources_before_params(func):
     '''Check annotated params (resources) are all before non-annoted params'''
     seen_param = False
     argspec = inspect.getfullargspec(func)
     for i, arg in enumerate(argspec.args):
-        anno = argspec.annotations.get('arg')
+        anno = argspec.annotations.get(arg)
         if anno is None:
             seen_param = True
         else:
             _resource_has_no_default(i, arg, anno, argspec)
+            _resources_annotation_io_type(arg, anno)
             if seen_param:
-                raise f"{arg} is annotated and is after a non-annotated param"
+                raise FluidSyntaxError(f"{arg} is annotated and is after a non-annotated param")
 
 
 def _resource_has_no_default(i, arg, anno, argspec):
@@ -49,7 +55,17 @@ def _resource_has_no_default(i, arg, anno, argspec):
     num_defaults = 0 if argspec.defaults is None else len(argspec.defaults)
     has_default = i >= num_args - num_defaults
     if anno is not None and has_default:
-        raise f"{arg} cannot be a resource and has default"
+        raise FluidSyntaxError(f"{arg} cannot be a resource and has default")
+
+
+PATTERN = re.compile("(input|output),(git|image)")
+
+
+def _resources_annotation_io_type(arg, anno):
+    '''Raise an error if the annotation does not match PATTERN'''
+    _z = PATTERN.match(anno)
+    if _z is None:
+        raise FluidSyntaxError(f"{arg} has illegel annotaiton {anno}")
 
 
 def _loc(frame):
