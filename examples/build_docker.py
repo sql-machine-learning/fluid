@@ -7,10 +7,11 @@ import fluid
 
 
 @fluid.task
-def build_docker(docker_source: "input,git",
-                 built_image: "output,image",
-                 path_to_dockerfile,
-                 path_to_context):
+def build_docker_image_from_git_source(
+        docker_source: "input,git",
+        built_image: "output,image",
+        path_to_dockerfile="/workspace/docker-source/Dockerfile",
+        path_to_context="/workspace/docker-source"):
     '''Define a Tekton Task that builds a Docker image from a Git repo'''
     fluid.step(image="gcr.io/kaniko-project/executor:v0.14.0",
                cmd=["/kaniko/executor"],
@@ -28,7 +29,8 @@ SKAFFOLD_IMAGE_LEEROY_WEB = fluid.image_resource(
     url="dockerhub.com/cxwangyi/leeroy-web")
 
 
-build_docker(SKAFFOLD_GIT,
-             "Dockerfile",
-             "/workspace/docker-source/examples/microservices/leeroy-web",
-             SKAFFOLD_IMAGE_LEEROY_WEB)
+build_docker_image_from_git_source(
+    SKAFFOLD_GIT,
+    "Dockerfile",
+    "/workspace/docker-source/examples/microservices/leeroy-web",
+    SKAFFOLD_IMAGE_LEEROY_WEB)

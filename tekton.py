@@ -60,7 +60,7 @@ def task_resources(argspec):
     output_resources = []
     for arg in argspec.args:
         _io, _typ, _is = _is_arg_resource(argspec, arg)
-        if _is is not None:
+        if _is:
             if _io == "input":
                 input_resources.append(task_resource(arg, _typ))
             else:
