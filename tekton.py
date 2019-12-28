@@ -59,7 +59,7 @@ def task_resources(argspec):
     input_resources = []
     output_resources = []
     for arg in argspec.args:
-        anno = argspec.annotations.get('arg')
+        anno = argspec.annotations.get(arg)
         if anno is not None:
             _s = anno.split(",")
             _io = _s[0]
@@ -72,8 +72,9 @@ def task_resources(argspec):
 
 
 def task_resource(name, typ):
+    '''Return a resource for using in inputs|outputs.resources of a Task'''
     return {
-        "name": name,
+        "name": k8s.safe_name(name),
         "type": typ
     }
 
@@ -129,7 +130,7 @@ def task_steps(func):
     argspec = inspect.getfullargspec(func)
     fake_args = []
     for arg in argspec.args:
-        fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)}")
+        fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)})")
 
     global STEPS
     STEPS = []
