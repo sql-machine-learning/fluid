@@ -88,6 +88,8 @@ def task_resource(name, typ):
 
 def task_run(func, args):
     '''Return a TaskRun'''
+    argspec = inspect.getfullargspec(func)
+    _ps, _ir, _or = task_run_params_resources(argspec, args)
     return _obj(
         kind="TaskRun",
         name=k8s.safe_name(func.__name__ + "-run"),
@@ -96,9 +98,12 @@ def task_run(func, args):
                 "name": k8s.safe_name(func.__name__)
             },
             "inputs": {
-                "params": task_run_params(inspect.getfullargspec(func), args)
-            }
-        })
+                "params": _ps,
+                "resources": _ir,
+            },
+            "outputs": {
+                "resources": _or,
+            }})
 
 
 def _obj(kind, name, spec):
@@ -113,35 +118,55 @@ def _obj(kind, name, spec):
     }
 
 
-def task_run_params(argspec, args):
+def task_run_params_resources(argspec, args):
     '''Return a list of parameters as TaskRun inputs'''
-    _ps = []
+    _ps = []  # params
+    _ir = []  # input resources
+    _or = []  # output resources
     for i, arg in enumerate(args):
-        _ps.append(task_run_param(argspec.args[i], arg))
-    return _ps
+        param = argspec.args[i]
+        anno = argspec.annotations.get(param)
+        if anno is None:        # a param
+            _ps.append(task_run_param(param, arg))
+        else:
+            _io = anno.split(",")[0]
+            if _io == "input":
+                _ir.append(task_run_resource(param, arg))
+            else:
+                _or.append(task_run_resource(param, arg))
+    return _ps, _ir, _or
 
 
-def task_run_param(arg_name, arg_value):
-    '''Return a param for TaskRun inputs.'''
+def task_run_param(param, arg):
+    '''Return a param of TaskRun'''
     return {
-        "name": arg_name,
-        "value": arg_value
+        "name": k8s.safe_name(param),
+        "value": arg
     }
 
 
+def task_run_resource(param, arg):
+    '''Return a resource as input or output of TaskRun'''
+    return{
+        "name": k8s.safe_name(param),
+        "resourceRef": {
+            "name": arg
+        }}
+
+
 class FakeGitResource:
-    '''Used in dry-run a Task  function, which might call res_param.revision'''
+    '''Used in dry-run a Task function, which might call res_param.revision'''
 
     def __init__(self, io, arg):
-        self.url = f"$({io}.resources.{k8s.safe_name(arg)}.url)"
-        self.revision = f"$({io}.resources.{k8s.safe_name(arg)}.revision)"
+        self.url = f"$({io}s.resources.{k8s.safe_name(arg)}.url)"
+        self.revision = f"$({io}s.resources.{k8s.safe_name(arg)}.revision)"
 
 
 class FakeImageResource:
-    '''Used in dry-run a Task  function, which might call res_param.url'''
+    '''Used in dry-run a Task function, which might call res_param.url'''
 
     def __init__(self, io, arg):
-        self.url = f"$({io}.resources.{k8s.safe_name(arg)}.url)"
+        self.url = f"$({io}s.resources.{k8s.safe_name(arg)}.url)"
 
 
 def _fake_resource(io, typ, arg):
@@ -158,7 +183,7 @@ def task_steps(func):
     for arg in argspec.args:
         _io, _typ, _is = _is_arg_resource(argspec, arg)
         if _is:
-            fake_args.append(_fake_resource(_typ, arg))
+            fake_args.append(_fake_resource(_io, _typ, arg))
         else:
             fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)})")
 
@@ -197,7 +222,7 @@ def _resource(name, typ, params):
         },
         "spec": {
             "type": typ,
-            "params": params}}
+            "params": [{"name": k, "value": v} for i, (k, v) in enumerate(params.items())]}}
 
 
 def git_resource(name, url, revision):
@@ -209,7 +234,8 @@ def git_resource(name, url, revision):
 
 def image_resource(name, url):
     '''Return a PipelineResource of type image'''
-    return _resource(name, "image", {"url": url})
+    return _resource(name, "image", {
+        "url": url})
 
 
 INPUT_RESOURCES = []

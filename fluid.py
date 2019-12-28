@@ -87,26 +87,20 @@ def step(image, cmd, args, env=None):
 
 
 def git_resource(url, revision):
-    '''Define a Git repo resource'''
+    '''Define a Git repo resource. Return the resource metadata.name'''
     # frame 0 - _loc()
     # frame 1 - fluid.git()
     # frame 2 - caller of git
     name = _loc(2)
     dump_yaml(tekton.git_resource(name, url, revision))
-    return {
-        "name": name,
-        "kind": "resource",
-        "type": "git"}
+    return name
 
 
 def image_resource(url):
-    '''Define a Docker image resource'''
+    '''Define a Docker image resource. Return the resource metadata.name'''
     # frame 0 - _loc()
     # frame 1 - fluid.image()
     # frame 2 - caler of image
     name = _loc(2)
     dump_yaml(tekton.image_resource(name, url))
-    return {
-        "name": name,
-        "kind": "resource",
-        "type": "image"}
+    return name

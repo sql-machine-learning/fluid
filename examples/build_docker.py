@@ -31,6 +31,5 @@ SKAFFOLD_IMAGE_LEEROY_WEB = fluid.image_resource(
 
 build_docker_image_from_git_source(
     SKAFFOLD_GIT,
-    "Dockerfile",
-    "/workspace/docker-source/examples/microservices/leeroy-web",
-    SKAFFOLD_IMAGE_LEEROY_WEB)
+    SKAFFOLD_IMAGE_LEEROY_WEB,
+    "Dockerfile")
