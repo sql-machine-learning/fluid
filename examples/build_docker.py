@@ -21,14 +21,14 @@ def build_docker(docker_source: "input,git",
 
 
 SKAFFOLD_GIT = fluid.git_resource(
-    "https://github.com/GoogleContainerTools/skaffold",
+    url="https://github.com/GoogleContainerTools/skaffold",
     revision="master")
 
 SKAFFOLD_IMAGE_LEEROY_WEB = fluid.image_resource(
-    "dockerhub.com/cxwangyi/leeroy-web")
+    url="dockerhub.com/cxwangyi/leeroy-web")
 
 
 build_docker(SKAFFOLD_GIT,
-             path_to_dockerfile="Dockerfile",
-             path_to_context="/workspace/docker-source/examples/microservices/leeroy-web",
-             built_image=SKAFFOLD_IMAGE_LEEROY_WEB)
+             "Dockerfile",
+             "/workspace/docker-source/examples/microservices/leeroy-web",
+             SKAFFOLD_IMAGE_LEEROY_WEB)

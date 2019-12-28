@@ -4,8 +4,6 @@ dictionary that represents a Tekton Resource.
 
 '''
 
-import re
-
 import inspect
 import k8s
 
@@ -56,9 +54,6 @@ def task_param(arg_name, default_value):
     return _r
 
 
-PATTERN = re.compile("(input|output),(git|image)")
-
-
 def task_resources(argspec):
     '''Return a list of resources as Task's inputs'''
     input_resources = []
@@ -66,11 +61,9 @@ def task_resources(argspec):
     for arg in argspec.args:
         anno = argspec.annotations.get('arg')
         if anno is not None:
-            _z = PATTERN.match(anno)
-            if _z is None:
-                raise f"{arg} has illegel annotaiton {anno}"
-            _io = _z.groups()[0]
-            _typ = _z.groups()[1]
+            _s = anno.split(",")
+            _io = _s[0]
+            _typ = _s[1]
             if _io == "input":
                 input_resources.append(task_resource(arg, _typ))
             else:
