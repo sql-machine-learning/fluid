@@ -59,16 +59,23 @@ def task_resources(argspec):
     input_resources = []
     output_resources = []
     for arg in argspec.args:
-        anno = argspec.annotations.get(arg)
-        if anno is not None:
-            _s = anno.split(",")
-            _io = _s[0]
-            _typ = _s[1]
+        _io, _typ, _is = _is_arg_resource(argspec, arg)
+        if _is is not None:
             if _io == "input":
                 input_resources.append(task_resource(arg, _typ))
             else:
                 output_resources.append(task_resource(arg, _typ))
     return input_resources, output_resources
+
+
+def _is_arg_resource(argspec, arg):
+    anno = argspec.annotations.get(arg)
+    _io, _typ = "", ""
+    if anno is not None:
+        _ri = anno.split(",")
+        _io = _ri[0]
+        _typ = _ri[1]
+    return _io, _typ, anno is not None
 
 
 def task_resource(name, typ):
@@ -122,6 +129,25 @@ def task_run_param(arg_name, arg_value):
     }
 
 
+class FakeGitResource:
+    '''Used in dry-run a Task  function, which might call res_param.revision'''
+
+    def __init__(self, arg):
+        self.url = f"$(inputs.params.{k8s.safe_name(arg)}.url)"
+        self.revision = f"$(inputs.params.{k8s.safe_name(arg)}.revision)"
+
+
+class FakeImageResource:
+    '''Used in dry-run a Task  function, which might call res_param.url'''
+
+    def __init__(self, arg):
+        self.url = f"$(inputs.params.{k8s.safe_name(arg)}.url)"
+
+
+def _fake_resource(typ, arg):
+    return FakeGitResource(arg) if typ == "git" else FakeImageResource(arg)
+
+
 STEPS = []  # For holding steps of a Task.
 
 
@@ -130,7 +156,11 @@ def task_steps(func):
     argspec = inspect.getfullargspec(func)
     fake_args = []
     for arg in argspec.args:
-        fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)})")
+        _io, _typ, _is = _is_arg_resource(argspec, arg)
+        if _is:
+            fake_args.append(_fake_resource(_typ, arg))
+        else:
+            fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)})")
 
     global STEPS
     STEPS = []
@@ -147,9 +177,14 @@ def add_step(name, image, cmd, args, env):
         "args": args
     }
     if env is not None:
-        _s["env"] = env
+        _s["env"] = step_env(env)
     global STEPS
     STEPS.append(_s)
+
+
+def step_env(env):
+    '''For the convenience of Fluid users, env is a dict; Tekton requires a list'''
+    return [{"name": k, "value": v} for i, (k, v) in enumerate(env.items())]
 
 
 def _resource(name, typ, params):

@@ -14,9 +14,9 @@ def build_docker(docker_source: "input,git",
     '''Define a Tekton Task that builds a Docker image from a Git repo'''
     fluid.step(image="gcr.io/kaniko-project/executor:v0.14.0",
                cmd=["/kaniko/executor"],
-               args=["--dockerfile", path_to_dockerfile,
-                     "--destination", built_image,
-                     "--context", path_to_context],
+               args=[f"--dockerfile={path_to_dockerfile}",
+                     f"--destination={built_image.url}",
+                     f"--context={path_to_context}"],
                env={"DOCKER_CONFIG": "/tekton/home/.docker/"})
 
 
