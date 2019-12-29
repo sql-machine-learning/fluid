@@ -104,3 +104,34 @@ def image_resource(url):
     name = _loc(2)
     dump_yaml(tekton.image_resource(name, url))
     return name
+
+
+class Secret:
+    '''Use with Python with statement to set and unset
+    tekton.SERVICE_ACCOUNT_NAME'''
+
+    def __init__(self, name):
+        self._name = name
+
+    def __enter__(self):
+        tekton.SERVICE_ACCOUNT_NAME = self._name
+        return tekton.SERVICE_ACCOUNT_NAME
+
+    def __exit__(self, typ, value, traceback):
+        tekton.SERVICE_ACCOUNT_NAME = None
+
+
+def service_account(secret):
+    '''Return a Kubernetes ServiceAccount'''
+    name = _loc(2)
+    dump_yaml({
+        "apiVersion": "v1",
+        "kind": "ServiceAccount",
+        "metadata": {
+            "name": name
+        },
+        "secrets": {
+            "name": secret
+        }
+    })
+    return name

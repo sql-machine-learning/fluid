@@ -29,7 +29,8 @@ SKAFFOLD_IMAGE_LEEROY_WEB = fluid.image_resource(
     url="dockerhub.com/cxwangyi/leeroy-web")
 
 
-build_docker_image_from_git_source(
-    SKAFFOLD_GIT,
-    SKAFFOLD_IMAGE_LEEROY_WEB,
-    "Dockerfile")
+with fluid.Secret(fluid.service_account("regcred")):
+    build_docker_image_from_git_source(
+        SKAFFOLD_GIT,
+        SKAFFOLD_IMAGE_LEEROY_WEB,
+        "Dockerfile")
