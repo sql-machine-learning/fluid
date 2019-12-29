@@ -45,7 +45,7 @@ export PYTHONPATH=$PWD/fluid:$PYTHONPATH
 
 The following `example.py` file defines a Task with two steps and two input parameters and runs the Task.
 
-```
+```python
 import fluid
 
 @fluid.task
