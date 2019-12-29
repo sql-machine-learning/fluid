@@ -86,11 +86,14 @@ def task_resource(name, typ):
     }
 
 
+SERVICE_ACCOUNT_NAME = None
+
+
 def task_run(func, args):
     '''Return a TaskRun'''
     argspec = inspect.getfullargspec(func)
     _ps, _ir, _or = task_run_params_resources(argspec, args)
-    return _obj(
+    _r = _obj(
         kind="TaskRun",
         name=k8s.safe_name(func.__name__ + "-run"),
         spec={
@@ -104,6 +107,10 @@ def task_run(func, args):
             "outputs": {
                 "resources": _or,
             }})
+    global SERVICE_ACCOUNT_NAME
+    if SERVICE_ACCOUNT_NAME is not None:
+        _r["spec"]["serviceAccountName"] = SERVICE_ACCOUNT_NAME
+    return _r
 
 
 def _obj(kind, name, spec):
@@ -169,8 +176,8 @@ class FakeImageResource:
         self.url = f"$({io}s.resources.{k8s.safe_name(arg)}.url)"
 
 
-def _fake_resource(io, typ, arg):
-    return FakeGitResource(io, arg) if typ == "git" else FakeImageResource(io, arg)
+def _fake_resource(_io, _typ, arg):
+    return FakeGitResource(_io, arg) if _typ == "git" else FakeImageResource(_io, arg)
 
 
 STEPS = []  # For holding steps of a Task.
@@ -236,7 +243,3 @@ def image_resource(name, url):
     '''Return a PipelineResource of type image'''
     return _resource(name, "image", {
         "url": url})
-
-
-INPUT_RESOURCES = []
-OUTPUT_RESOURCES = []
