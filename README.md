@@ -48,13 +48,13 @@ spec:
     name: example-py-13
 ```
 
-</td></tr><tr><td>
+</td></tr><tr><td valign=top>
 
 ```python
 echo_hello_world("Aloha")
 ```
 
-</td><td>
+</td><td valign=top>
 
 ```yaml
 ---
