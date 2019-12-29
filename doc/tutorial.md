@@ -72,7 +72,7 @@ kubectl apply -f example.yaml
 
 To check the status, type the `kubectl get tekton-pipelines` command.  You will see some output like the following.
 
-```bash
+```
 $ kubectl get tekton-pipelines
 NAME                               AGE
 task.tekton.dev/echo-hello-world   4m18s
