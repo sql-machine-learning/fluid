@@ -13,8 +13,6 @@ import fluid
 def echo_hello_world(hello, world="El mundo"):
     fluid.step(image="ubuntu", cmd=["echo"], args=[hello])
     fluid.step(image="ubuntu", cmd=["echo"], args=[world])
-
-echo_hello_world("Aloha")
 ```
 
 </td><td valign=top>
@@ -48,6 +46,17 @@ spec:
     - echo
     image: ubuntu
     name: example-py-13
+```
+
+</td></tr><tr><td>
+
+```python
+echo_hello_world("Aloha")
+```
+
+</td><td>
+
+```yaml
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
@@ -62,7 +71,7 @@ spec:
     name: echo_hello_world
 ```
 
-</tr></td></table>
+</td></tr></table>
 
 For more information, please refer to the following documents.
 
