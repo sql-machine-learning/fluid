@@ -4,15 +4,15 @@ Fluid is a Python package allowing users to write [Tekton](https://github.com/te
 
 Here is an example.  To the left is a Python program defining a Task and related TaskRun.  To the right is the equivalent YAML file.
 
-<table><tr><td valign=top>
+<table><th><td>
     
 Python/Fluid
 
-</td><td valiagn=top>
+</td><td>
 
 Tekton YAML
 
-</td></tr><tr><td valign=top>
+</td></th><tr><td valign=top>
 
 ```python
 import fluid
