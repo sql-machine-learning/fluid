@@ -1,6 +1,6 @@
 # Couler for Google Tekton
 
-Couler is a Python package allowing users to write Argo and [Tekton](https://github.com/tektoncd/pipeline) workflows in Python other than YAML.
+Couler is a Python package allowing users to write [Argo](https://argoproj.github.io/) and [Tekton](https://github.com/tektoncd/pipeline) workflows in Python other than YAML.
 
 This project is the Couler backend for Tekton.  The version for Argo is at [here](https://github.com/sql-machine-learning/sqlflow/blob/develop/python/couler/).
 
