@@ -3,17 +3,17 @@
 
 '''
 
-import fluid
+import fluid as couler
 
 
-@fluid.task
+@couler.task
 def build_docker_image_from_git_source(
         docker_source: "input,git",
         built_image: "output,image",
         path_to_dockerfile="/workspace/docker-source/Dockerfile",
         path_to_context="/workspace/docker-source"):
     '''Define a Tekton Task that builds a Docker image from a Git repo'''
-    fluid.step(image="gcr.io/kaniko-project/executor:v0.14.0",
+    couler.step(image="gcr.io/kaniko-project/executor:v0.14.0",
                cmd=["/kaniko/executor"],
                args=[f"--dockerfile={path_to_dockerfile}",
                      f"--destination={built_image.url}",
@@ -21,15 +21,15 @@ def build_docker_image_from_git_source(
                env={"DOCKER_CONFIG": "/tekton/home/.docker/"})
 
 
-SKAFFOLD_GIT = fluid.git_resource(
+SKAFFOLD_GIT = couler.git_resource(
     url="https://github.com/GoogleContainerTools/skaffold",
     revision="master")
 
-SKAFFOLD_IMAGE_LEEROY_WEB = fluid.image_resource(
+SKAFFOLD_IMAGE_LEEROY_WEB = couler.image_resource(
     url="dockerhub.com/cxwangyi/leeroy-web")
 
 
-with fluid.Secret(fluid.service_account("regcred")):
+with couler.Secret(couler.service_account("regcred")):
     build_docker_image_from_git_source(
         SKAFFOLD_GIT,
         SKAFFOLD_IMAGE_LEEROY_WEB,
