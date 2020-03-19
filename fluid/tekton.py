@@ -5,7 +5,7 @@ dictionary that represents a Tekton Resource.
 '''
 
 import inspect
-import k8s
+import fluid.k8s as k8s
 
 
 def task(func):

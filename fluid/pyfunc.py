@@ -10,8 +10,8 @@ import re
 
 import yaml
 
-import tekton
-import k8s
+import fluid.tekton as tekton
+import fluid.k8s as k8s
 
 
 def dump_yaml(content):
