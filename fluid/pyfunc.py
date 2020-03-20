@@ -13,6 +13,11 @@ import yaml
 import fluid.tekton as tekton
 import fluid.k8s as k8s
 
+__all__ = [
+    'Secret', 'FluidSyntaxError', 'dump_yaml', 'task', 'step', 'git_resource',
+    'image_resource', 'service_account'
+]
+
 
 def dump_yaml(content):
     '''Pretty print a Python dictionary as a YAML'''
@@ -35,7 +40,9 @@ class FluidSyntaxError(Exception):
 
 
 def _resources_before_params(func):
-    '''Check annotated params (resources) are all before non-annoted params'''
+    '''Check annotated params (resources)
+       are all before non-annoted params
+    '''
     seen_param = False
     argspec = inspect.getfullargspec(func)
     for i, arg in enumerate(argspec.args):
@@ -46,7 +53,8 @@ def _resources_before_params(func):
             _resource_has_no_default(i, arg, anno, argspec)
             _resources_annotation_io_type(arg, anno)
             if seen_param:
-                raise FluidSyntaxError(f"{arg} is annotated and is after a non-annotated param")
+                raise FluidSyntaxError(f"{arg} is annotated and is \
+                    after a non-annotated param")
 
 
 def _resource_has_no_default(i, arg, anno, argspec):

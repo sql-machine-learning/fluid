@@ -39,7 +39,8 @@ def task_params(argspec):
         if argspec.annotations.get(arg) is None:  # is param
             _ps.append(task_param(
                 arg,
-                None if i < first_default else argspec.defaults[i-first_default]))
+                None if i < first_default else argspec.defaults[
+                    i-first_default]))
     return _ps
 
 
@@ -107,7 +108,7 @@ def task_run(func, args):
             "outputs": {
                 "resources": _or,
             }})
-    global SERVICE_ACCOUNT_NAME
+    global SERVICE_ACCOUNT_NAME  # pylint: disable=global-statement
     if SERVICE_ACCOUNT_NAME is not None:
         _r["spec"]["serviceAccountName"] = SERVICE_ACCOUNT_NAME
     return _r
@@ -161,7 +162,7 @@ def task_run_resource(param, arg):
         }}
 
 
-class FakeGitResource:
+class FakeGitResource:  # pylint: disable=too-few-public-methods
     '''Used in dry-run a Task function, which might call res_param.revision'''
 
     def __init__(self, io, arg):
@@ -169,7 +170,7 @@ class FakeGitResource:
         self.revision = f"$({io}s.resources.{k8s.safe_name(arg)}.revision)"
 
 
-class FakeImageResource:
+class FakeImageResource:    # pylint: disable=too-few-public-methods
     '''Used in dry-run a Task function, which might call res_param.url'''
 
     def __init__(self, io, arg):
@@ -177,7 +178,8 @@ class FakeImageResource:
 
 
 def _fake_resource(_io, _typ, arg):
-    return FakeGitResource(_io, arg) if _typ == "git" else FakeImageResource(_io, arg)
+    return FakeGitResource(_io, arg) \
+        if _typ == "git" else FakeImageResource(_io, arg)
 
 
 STEPS = []  # For holding steps of a Task.
@@ -194,7 +196,7 @@ def task_steps(func):
         else:
             fake_args.append(f"$(inputs.params.{k8s.safe_name(arg)})")
 
-    global STEPS
+    global STEPS    # pylint: disable=global-statement
     STEPS = []
     func(*fake_args)
     return STEPS
@@ -210,12 +212,14 @@ def add_step(name, image, cmd, args, env):
     }
     if env is not None:
         _s["env"] = step_env(env)
-    global STEPS
+    global STEPS     # pylint: disable=global-statement
     STEPS.append(_s)
 
 
 def step_env(env):
-    '''For the convenience of Fluid users, env is a dict; Tekton requires a list'''
+    '''For the convenience of Fluid users, env is a dict;
+       Tekton requires a list
+    '''
     return [{"name": k, "value": v} for i, (k, v) in enumerate(env.items())]
 
 
@@ -229,7 +233,8 @@ def _resource(name, typ, params):
         },
         "spec": {
             "type": typ,
-            "params": [{"name": k, "value": v} for i, (k, v) in enumerate(params.items())]}}
+            "params": [{"name": k, "value": v} for i, (k, v) in enumerate(
+                params.items())]}}
 
 
 def git_resource(name, url, revision):

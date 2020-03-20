@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+'''This module packages and distributes Fluid'''
 import io
 import os
 
@@ -15,8 +15,8 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = None
 
 # What packages are required for this module to be executed?
-SETUP_REQUIRED = ['pytest-runner']
-TEST_REQUIRED = [
+REQUIRES = ['pyyaml']
+TEST_REQUIRED = REQUIRES + [
     'pytest',
 ]
 
@@ -26,39 +26,40 @@ EXTRAS = {}
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
 # Except, perhaps the License and Trove Classifiers!
-# If you do change the License, remember to change the Trove Classifier for that!
+# If you do change the License, remember to change the Trove Classifier
+# for that!
 
-here = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
 try:
-    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = '\n' + f.read()
+    with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
+        LONG_DESCRIPTION = '\n' + f.read()
 except FileNotFoundError:
-    long_description = DESCRIPTION
+    LONG_DESCRIPTION = DESCRIPTION
 
 # Load the package's version.py module as a dictionary.
-about = {}
+ABOUT = {}
 if not VERSION:
-    with open(os.path.join(here, NAME, 'version.py')) as f:
-        exec(f.read(), about)
+    with open(os.path.join(HERE, NAME, 'version.py')) as f:
+        exec(f.read(), ABOUT)   # pylint: disable=exec-used
 else:
-    about['__version__'] = VERSION
+    ABOUT['__version__'] = VERSION
 
 # Where the magic happens:
 setup(
     name=NAME,
-    version=about['__version__'],
+    version=ABOUT['__version__'],
     description=DESCRIPTION,
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author=AUTHOR,
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(exclude=('tests', )),
-    setup_requires=SETUP_REQUIRED,
+    install_requires=REQUIRES,
     tests_require=TEST_REQUIRED,
     extras_require=EXTRAS,
     license='Apache License 2.0',
