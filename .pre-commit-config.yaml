@@ -1,0 +1,9 @@
+repos:
+- repo: local
+  hooks:
+  - id: pylint
+    name: pylint
+    entry: bash ./scripts/pylint.sh
+    language: system
+    files: \.py$
+    verbose: true
