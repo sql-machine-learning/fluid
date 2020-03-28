@@ -1,8 +1,6 @@
-# Couler for Google Tekton
+# Fluid: Python Instead of YAML for Google Tekton
 
-Couler is a Python package allowing users to write [Argo](https://argoproj.github.io/) and [Tekton](https://github.com/tektoncd/pipeline) workflows in Python other than YAML.
-
-This project is the Couler backend for Tekton.  The version for Argo is at [here](https://github.com/sql-machine-learning/sqlflow/blob/develop/python/couler/).
+Fluid is a Python package allowing users to write Teckton workflows in Python.
 
 Here is an example.  To the left is a Python program defining a Task and related TaskRun.  To the right is the equivalent YAML file.
 
